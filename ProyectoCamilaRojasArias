@@ -1,0 +1,990 @@
+--Camila Rojas Arias
+
+--Creación de BD
+CREATE DATABASE EmpresaBD;
+GO
+
+--Uso de la BD
+USE EmpresaBD;
+GO
+
+--CREACIÓN DE TABLAS
+
+--Tabla de información de clientes
+CREATE TABLE Cliente(
+	ClienteID INT PRIMARY KEY IDENTITY (1,1),
+	Nombre VARCHAR(100) NOT NULL,
+	Direccion VARCHAR(250) NOT NULL,
+	Contacto VARCHAR(100) NOT NULL
+);
+
+--Tabla de categoría de productos
+CREATE TABLE Categoria(
+	CategoriaID INT PRIMARY KEY IDENTITY (1,1),
+	Nombre VARCHAR(100) NOT NULL
+);
+
+--Tabla de productos
+CREATE TABLE Producto(
+	ProductoID INT PRIMARY KEY IDENTITY (1,1),
+	Nombre VARCHAR(100) UNIQUE,
+	Descripcion VARCHAR(250) NOT NULL,
+	Precio  DECIMAL(10, 2) NOT NULL,
+	CantidadStock INT NOT NULL,
+	CategoriaID INT,
+	FOREIGN KEY (CategoriaID) REFERENCES Categoria(CategoriaID) --Conexión con categoría
+);
+
+--Tabla de Proveedores
+CREATE TABLE Proveedor(
+	ProveedorID INT PRIMARY KEY IDENTITY (1,1),
+	Nombre VARCHAR(100) NOT NULL,
+	Direccion VARCHAR(250) NOT NULL,
+	Telefono VARCHAR(15) NOT NULL,
+	ContactoPrincipal VARCHAR(100)
+);
+
+--Tabla de compras a proveedores
+CREATE TABLE Compra(
+	CompraID INT PRIMARY KEY IDENTITY (1,1),
+	FechaCompra DATE NOT NULL,
+	Cantidad INT NOT NULL,
+	CostoCompra DECIMAL(10, 2) NOT NULL,
+	ProveedorID INT,
+	ProductoID INT,
+	FOREIGN KEY (ProveedorID) REFERENCES Proveedor(ProveedorID), --Conexión con el proveedor al que se le realizó la compra
+	FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+);
+
+--Tabla de ventas a clientes
+CREATE TABLE Venta(
+	VentaID INT PRIMARY KEY IDENTITY (1,1),
+	FechaVenta DATETIME NOT NULL,
+	Cantidad INT NOT NULL,
+	TotalVenta DECIMAL(10, 2) NOT NULL,
+	ClienteID INT,
+	ProductoID INT,
+	FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID), --Conexión con el cliente qure realizó la compra
+	FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+);
+
+
+
+
+--CREACIÓN DE TABLAS INTERMEDIAS
+
+--Tabla intermedia de CompraProducto
+CREATE TABLE CompraProducto(
+	CompraProductoID INT PRIMARY KEY IDENTITY (1,1),
+	Cantidad INT NOT NULL,
+	Costo DECIMAL(10, 2) NOT NULL,
+	CompraID INT,
+	ProductoID INT,
+	FOREIGN KEY (CompraID) REFERENCES Compra(CompraID),--Compra que se realizó
+	FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)--Producto que se compró 
+);
+
+--Tabla intermedia VentaProducto
+CREATE TABLE VentaProducto(
+	VentaProductoID INT PRIMARY KEY IDENTITY (1,1),
+	Cantidad INT NOT NULL,
+	Costo DECIMAL(10, 2) NOT NULL,
+	VentaID INT,
+	ProductoID INT,
+	FOREIGN KEY (VentaID) REFERENCES Venta(VentaID),--Venta que se realizó
+	FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)--Producto que se vendió
+);
+
+
+--INSERCION DE DATOS PARA TABLAS NORMALES (Datos obtenidos de ChatGPT)
+
+
+--Datos de categoría (Datos obtenidos de ChatGPT)
+
+INSERT INTO Cliente (Nombre, Direccion, Contacto) VALUES
+('Juan Pérez', 'Av. Siempre Viva 123', 'juan.perez@gmail.com'),
+('Ana López', 'Calle Falsa 456', 'ana.lopez@gmail.com'),
+('Carlos García', 'Calle Real 789', 'carlos.garcia@gmail.com'),
+('Laura Díaz', 'Av. de la Paz 101', 'laura.diaz@gmail.com'),
+('Pedro Martínez', 'Calle Sol 202', 'pedro.martinez@gmail.com'),
+('Maria Gómez', 'Calle Luna 303', 'maria.gomez@gmail.com'),
+('Luis Rodríguez', 'Av. 9 de Julio 404', 'luis.rodriguez@gmail.com'),
+('Sofía Fernández', 'Calle Verde 505', 'sofia.fernandez@gmail.com'),
+('Miguel Torres', 'Calle Azul 606', 'miguel.torres@gmail.com'),
+('Paula Sánchez', 'Av. Libertad 707', 'paula.sanchez@gmail.com');
+GO
+
+INSERT INTO Categoria (Nombre) VALUES
+('Laptops'),
+('Smartphones'),
+('Accesorios'),
+('Monitores'),
+('Componentes'),
+('Impresoras'),
+('Cámaras'),
+('Almacenamiento'),
+('Redes'),
+('Software');
+GO
+
+--Datos de productos (Datos obtenidos de ChatGPT)
+
+INSERT INTO Producto (Nombre, Descripcion, Precio, CantidadStock, CategoriaID) VALUES
+('Laptop HP', 'Laptop de 15 pulgadas con procesador i5', 550000, 20, 1),
+('iPhone 14', 'Smartphone de última generación', 430000, 10, 2),
+('Mouse Logitech', 'Mouse inalámbrico', 35000, 100, 3),
+('Monitor Samsung', 'Monitor curvo de 24 pulgadas', 450000, 15, 4),
+('Memoria RAM 16GB', 'Memoria DDR4 3200MHz', 150000, 25, 5),
+('Impresora Epson', 'Impresora multifuncional', 350000, 8, 6),
+('Cámara Sony', 'Cámara digital de 20 MP', 120000, 30, 7),
+('Disco SSD 1TB', 'Disco sólido de alta velocidad', 250000, 30, 8),
+('Router TP-Link', 'Router inalámbrico de alta velocidad', 12000, 50, 9),
+('Licencia Office', 'Licencia de software Office 365', 15000, 40, 10);
+GO
+
+--Datos de proveedores (Datos obtenidos de ChatGPT)
+
+INSERT INTO Proveedor (Nombre, Direccion, Telefono, ContactoPrincipal) VALUES
+('Proveedor A', 'Av. Principal 123, Ciudad X', '1234567890', 'Carlos Pérez'),
+('Proveedor B', 'Calle Secundaria 456, Ciudad Y', '9876543210', 'María López'),
+('Proveedor C', 'Zona Industrial 789, Ciudad Z', '4561237890', 'Juan Torres'),
+('Proveedor D', 'Boulevard 101, Ciudad W', '3216549870', 'Ana García'),
+('Proveedor E', 'Parque Tecnológico 202, Ciudad V', '6547891230', 'Luis Hernández'),
+('Proveedor F', 'Plaza Central 303, Ciudad U', '7891236540', 'Sofía Martínez'),
+('Proveedor G', 'Avenida Norte 404, Ciudad T', '9638527410', 'Jorge Ramírez'),
+('Proveedor H', 'Calle Este 505, Ciudad S', '8529637410', 'Diana Fernández'),
+('Proveedor I', 'Zona Sur 606, Ciudad R', '7418529630', 'Miguel Castro'),
+('Proveedor J', 'Centro Histórico 707, Ciudad Q', '3692581470', 'Laura González');
+GO
+
+--Datos de compras (Datos obtenidos de ChatGPT)
+
+INSERT INTO Compra (FechaCompra, Cantidad, CostoCompra, ProveedorID, ProductoID) VALUES
+('2024-11-01', 10, 15000.00, 1, 1),
+('2024-11-02', 5, 1750.00, 2, 2),
+('2024-11-03', 20, 400.00, 3, 3),
+('2024-11-04', 30, 750.00, 4, 4),
+('2024-11-05', 50, 1500.00, 5, 5),
+('2024-11-06', 100, 150.00, 6, 6),
+('2024-11-07', 15, 1800.00, 7, 7),
+('2024-11-08', 25, 1875.00, 8, 8),
+('2024-11-09', 40, 400.00, 9, 9),
+('2024-11-10', 60, 900.00, 10, 10);
+GO
+
+--Datos de ventas (Datos obtenidos de ChatGPT)
+
+INSERT INTO Venta (FechaVenta, Cantidad, TotalVenta, ClienteID, ProductoID) VALUES
+('2024-11-01 10:00', 1, 1500.00, 1, 1),
+('2024-11-02 11:00', 2, 700.00, 2, 2),
+('2024-11-03 12:00', 3, 60.00, 3, 3),
+('2024-11-04 13:00', 5, 125.00, 4, 4),
+('2024-11-05 14:00', 10, 300.00, 5, 5),
+('2024-11-06 15:00', 20, 30.00, 6, 6),
+('2024-11-07 16:00', 3, 360.00, 7, 7),
+('2024-11-08 17:00', 4, 300.00, 8, 8),
+('2024-11-09 18:00', 5, 50.00, 9, 9),
+('2024-11-10 19:00', 6, 90.00, 10, 10);
+GO
+
+--INSERCION DE DATOS PARA TABLAS INTERMEDIA (Datos obtenidos de ChatGPT)
+
+--Datos de CompraProducto (Datos obtenidos de ChatGPT)
+
+
+INSERT INTO CompraProducto (Cantidad, Costo, CompraID, ProductoID) VALUES
+(10, 150000, 1, 1),
+(5, 175000, 2, 2),
+(20, 40000, 3, 3),
+(30, 75000, 4, 4),
+(50, 150000, 5, 5),
+(100, 15000, 6, 6),
+(15, 180000, 7, 7),
+(25, 18750, 8, 8),
+(40, 40000, 9, 9),
+(60, 90000,  10, 10);
+GO
+
+--Datos de VentaProductos (Datos obtenidos de ChatGPT)
+
+INSERT INTO VentaProducto (Cantidad, Costo, VentaID, ProductoID) VALUES
+(1, 150000, 1, 1),
+(2, 70000, 2, 2),
+(3, 6000, 3, 3),
+(5, 12500, 4, 4),
+(10, 30000, 5, 5),
+(20, 3000, 6, 6),
+(3, 36000, 7, 7),
+(4, 30000, 8, 8),
+(5, 5000, 9, 9),
+(6, 9000, 10, 10);
+GO
+
+
+--Ver infromación en las bases de datos
+
+SELECT * FROM Cliente;
+SELECT * FROM Categoria;
+SELECT * FROM Producto;
+SELECT * FROM Proveedor;
+SELECT * FROM Venta;
+SELECT * FROM Compra;
+SELECT * FROM CompraProducto;
+SELECT * FROM VentaProducto;
+
+
+--MODIFICACIONES A LAS TABLAS
+
+--TABLA DE PRODUCTOS
+
+--Registrar nuevos productos
+
+CREATE PROCEDURE ProductoNuevo
+	@Nombre VARCHAR(100),
+	@Descripcion VARCHAR(250),
+	@Precio DECIMAL(10, 2),
+	@CantidadStock INT,
+	@CategoriaID INT
+AS
+BEGIN
+	INSERT INTO Producto (Nombre, Descripcion, Precio, CantidadStock, CategoriaID)
+	VALUES (@Nombre, @Descripcion, @Precio, @CantidadStock, @CategoriaID);
+
+	PRINT 'Producto registrado exitosamente.'
+END;
+GO
+
+--Ejemplo de ingreso de productos
+EXEC ProductoNuevo
+	@Nombre = 'Samsung S24',
+	@Descripcion = 'Celular de ultima generación',
+	@Precio = 600000,
+	@CantidadStock = 50,
+	@CategoriaID = 2;
+
+
+
+--Modificación de productos existentes
+CREATE PROCEDURE ActualizarProducto
+	@Nombre VARCHAR(100),
+	@Descripcion VARCHAR(250),
+	@Precio DECIMAL(10, 2),
+	@CantidadStock INT,
+	@CategoriaID INT,
+	@ProductoID INT
+AS
+BEGIN
+	--	If en caso de que el producto a modificar no exista
+	If NOT EXISTS (SELECT 1 FROM Producto WHERE ProductoID = @ProductoID)
+	BEGIN 
+		PRINT'Producto a modificar no exite.';
+		RETURN;
+	END
+
+	UPDATE Producto
+	SET Nombre = @Nombre,
+		Descripcion = @Descripcion,
+		Precio = @Precio,
+		CantidadStock = @CantidadStock,
+		CategoriaID = @CategoriaID
+	WHERE ProductoID = @ProductoID;
+
+	PRINT'Producto modificado exitosamente';
+
+END;
+GO
+
+--Ejemplo de modificación de productos
+EXEC ActualizarProducto
+	@Nombre = 'Samsung S23',
+	@Descripcion = 'Celular de ultima generación',
+	@Precio = 500000,
+	@CantidadStock = 30,
+	@CategoriaID = 2,
+	@ProductoID = 11;
+
+
+
+--Eliminación de productos
+
+CREATE PROCEDURE EliminarProducto
+	@ProductoID INT
+AS
+BEGIN
+	--Se utilizan if para prevenir en caso de que el producto este en una venta o compra o por si no existe
+	IF NOT EXISTS (SELECT 1 FROM Producto WHERE ProductoID = @ProductoID)
+	BEGIN
+		PRINT 'El producto a eliminar no existe en el sistema.';
+		RETURN;
+	END
+
+	IF NOT EXISTS (SELECT 1 FROM Compra WHERE ProductoID = @ProductoID)
+	BEGIN
+		PRINT 'El producto a eliminar se encuntra en una compra.';
+		RETURN;
+	END
+
+	IF NOT EXISTS (SELECT 1 FROM Venta WHERE ProductoID = @ProductoID)
+	BEGIN
+		PRINT 'El producto a eliminar se encuntra en una venta.';
+		RETURN;
+	END
+
+	DELETE FROM Producto
+	WHERE ProductoID = @ProductoID;
+		PRINT 'Producto eliminado exitosamente';
+END;
+GO
+
+--Ejemplo de eliminación de producto
+
+EXEC EliminarProducto @ProductoID = 3;
+
+
+
+--TABLA DE PROVEEDORES
+
+--Registrar nuevos proveedores
+
+CREATE PROCEDURE ProveedorNuevo
+	@Nombre VARCHAR(100),
+	@Direccion VARCHAR(250),
+	@Telefono VARCHAR(15),
+	@ContactoPrincipal VARCHAR(100)
+AS
+BEGIN
+	INSERT INTO Proveedor (Nombre, Direccion, Telefono, ContactoPrincipal)
+	VALUES (@Nombre, @Direccion, @Telefono, @ContactoPrincipal);
+
+	PRINT 'Proveedor registrado exitosamente.';
+END;
+GO
+
+--Ejemplo de un nuevo proveedor
+
+EXEC ProveedorNuevo
+	@Nombre = 'Proveedor K',
+	@Direccion = 'Avenida Este 13',
+	@Telefono = '856-9874',
+	@ContactoPrincipal = 'Luis Bonilla';
+
+
+--Modificación de información de proveedores
+CREATE PROCEDURE ActualizarProveedores
+	@ProveedorID INT,
+	@Nombre VARCHAR(100),
+	@Direccion VARCHAR(250),
+	@Telefono VARCHAR(15),
+	@ContactoPrincipal VARCHAR(100)
+AS
+BEGIN
+	--	If en caso de que el proveedor a modificar no exista
+	If NOT EXISTS (SELECT 1 FROM Proveedor WHERE ProveedorID = @ProveedorID)
+	BEGIN 
+		PRINT'El proveedor del que desea modificar la información no exite.';
+		RETURN;
+	END
+
+	UPDATE Proveedor
+	SET Nombre = @Nombre,
+		Direccion = @Direccion,
+		Telefono = @Telefono,
+		ContactoPrincipal = @ContactoPrincipal
+	WHERE ProveedorID = @ProveedorID;
+
+	PRINT'Información de proveedor modificada exitosamente';
+
+END;
+GO
+
+--Ejemplo de modificación de proveedor
+EXEC ActualizarProveedores
+	@Nombre = 'Proveedor K',
+	@Direccion = 'Avenida Este 13',
+	@Telefono = '856-9874',
+	@ContactoPrincipal = 'Carlos Bonilla',
+	@ProveedorID = 11;
+
+
+
+--Eliminación de productos
+
+CREATE PROCEDURE EliminarProveedor
+	@ProveedorID INT
+AS
+BEGIN
+	--Se utilizan if para prevenir en caso de que el Proveedor este en una compra o no exista
+	IF NOT EXISTS (SELECT 1 FROM Proveedor WHERE ProveedorID = @ProveedorID)
+	BEGIN
+		PRINT 'El proveedor a eliminar no existe en el sistema.';
+		RETURN;
+	END
+
+	IF NOT EXISTS (SELECT 1 FROM Compra WHERE ProveedorID = @ProveedorID)
+	BEGIN
+		PRINT 'El producto a eliminar se encuntra en una compra.';
+		RETURN;
+	END
+
+	DELETE FROM Proveedor
+	WHERE ProveedorID = @ProveedorID;
+		PRINT 'Proveedor eliminado exitosamente';
+END;
+
+--Ejemplo de eliminación de producto
+
+EXEC EliminarProveedor @ProveedorID = 4;
+
+
+--TABLA DE COMPRAS (PROCESO ALMACENADO)
+
+--Registrar nuevos productos
+
+CREATE PROCEDURE RegistarCompra
+	@FechaCompra DATE,
+	@Cantidad INT,
+	@CostoCompra DECIMAL(10, 2),
+	@ProveedorID INT,
+	@ProductoID INT
+AS
+BEGIN
+	--Confirmación de que tanto el producto como el proveedor existan
+	IF NOT EXISTS (SELECT 1 FROM Producto WHERE ProductoID = @ProductoID)
+	BEGIN
+		PRINT 'El producto no existe.';
+		RETURN;
+	END
+
+	IF NOT EXISTS (SELECT 1 FROM Proveedor WHERE ProveedorID = @ProveedorID)
+	BEGIN
+		PRINT 'El proveedor no existe.';
+		RETURN;
+	END
+
+	--Registro de la compra
+	INSERT INTO Compra (FechaCompra, Cantidad, CostoCompra, ProveedorID, ProductoID)
+	VALUES (@FechaCompra, @Cantidad, @CostoCompra, @ProveedorID, @ProductoID)
+
+	--Actualizar cantidad de productos en stock
+	UPDATE Producto
+	SET CantidadStock = CantidadStock + @Cantidad
+	WHERE ProductoID = @ProductoID;
+
+	PRINT 'Compra realizada exitisamente'
+END;
+GO
+
+--Ejemplo de registro de compra
+
+EXEC RegistrarCompra 
+    @FechaCompra = '2024-10-31', 
+    @Cantidad = 30,
+    @CostoCompra = 600000,
+    @ProveedorID = 3,
+    @ProductoID = 4;
+
+--Modificar compra de compra
+
+CREATE PROCEDURE ModificarCompra
+	@CompraID INT,
+	@ProductoID INT,
+	@Cantidad INT,
+	@CantidadStock INT,
+	@Costo DECIMAL(10, 2)
+AS
+BEGIN
+	--Comprobaciones con if
+	IF NOT EXISTS (SELECT 1 FROM Compra WHERE CompraID = @CompraID)
+	BEGIN
+		PRINT'La compra a modificar no existe.';
+		RETURN;
+	END
+
+	IF NOT EXISTS (SELECT 1 FROM Compra WHERE CompraID = @CompraID AND ProductoID = @ProductoID)
+	BEGIN
+		PRINT'El producto no existe en la compra.';
+		RETURN;
+	END
+
+	UPDATE Producto
+	SET CantidadStock = CantidadStock + @Cantidad
+	WHERE ProductoID = @ProductoID;
+
+	PRINT 'Compra actualizada exitisamente.';
+END;
+GO
+
+--Ejemplo de modificación de compra
+
+EXEC ModificarCompra
+    @CompraID = 1,
+    @ProductoID = 2 
+    @NuevaCantidad = 150,
+    @NuevoCosto = 2000000; 
+
+
+--Eliminar una compra
+
+--EN ESTE CASO ESTOY ASUMIENDO QUE SE ELIMINA EL REGISTRO, SOLO DENTRO DE LA BD,
+--LA COMPRA YA FUE REALIZADA POR LO QUE EL STOCK NO CAMBIA
+
+CREATE PROCEDURE EliminarCompra
+	@CompraID INT
+AS
+BEGIN
+	--Comprobaciones con if
+	IF NOT EXISTS (SELECT 1 FROM Compra WHERE CompraID = @CompraID)
+	BEGIN
+		PRINT'La compra a eliminar no existe.';
+		RETURN;
+	END
+
+	DELETE FROM Compra WHERE CompraID = @CompraID;
+
+	PRINT 'Registro de compra eliminado exitisamente.';
+END;
+GO
+
+--Ejemplo de eliminación de compra
+EXEC EliminarCompra
+    @CompraID = 1;
+
+
+--TABLA DE VENTAS (PROCESO ALMACENADO)
+
+CREATE PROCEDURE RegistrarVenta
+    @ClienteID INT,
+    @ProductoID INT,
+    @Cantidad INT,
+    @TotalVenta DECIMAL(10, 2),
+    @FechaVenta DATE
+AS
+BEGIN
+	--Comprobación con IF
+	   IF NOT EXISTS (SELECT 1 FROM Cliente WHERE ClienteID = @ClienteID)
+    BEGIN
+        PRINT 'El cliente no existe en el sistema.';
+        RETURN;
+    END
+
+    IF NOT EXISTS (SELECT 1 FROM Producto WHERE ProductoID = @ProductoID)
+    BEGIN
+        PRINT 'El producto no existe en el sistema.';
+        RETURN;
+    END
+
+	--Comprobar cantidad de stock atual para saber si se puede hacer la venta
+	INSERT INTO Venta (ClienteID, ProductoID, Cantidad, TotalVenta, FechaVenta)
+    VALUES (@ClienteID, @ProductoID, @Cantidad, @TotalVenta, @FechaVenta);
+
+
+	--Actualización del stock
+	UPDATE Producto
+    SET CantidadStock = CantidadStock - @Cantidad
+    WHERE ProductoID = @ProductoID;
+
+	   PRINT 'Venta realizada correctamente';
+END;
+GO
+
+--Ejemplo de Registar venta
+EXEC RegistrarVenta 
+    @ClienteID = 1, 
+    @ProductoID = 11, 
+    @Cantidad = 2, 
+    @PrecioVenta = 200000;
+
+
+--Modificar venta
+
+CREATE PROCEDURE ActualizarVenta
+    @VentaID INT,
+    @NuevaCantidad INT
+AS
+BEGIN
+	--Comprobación con if
+    IF NOT EXISTS (SELECT 1 FROM Venta WHERE VentaID = @VentaID)
+    BEGIN
+        PRINT 'La venta no existe en el sistema.';
+        RETURN;
+    END
+    
+    DECLARE @CantidadOriginal INT, @ProductoID INT;
+    SELECT @CantidadOriginal = Cantidad, @ProductoID = ProductoID
+    FROM Venta WHERE VentaID = @VentaID;
+    
+    UPDATE Venta
+    SET Cantidad = @NuevaCantidad
+    WHERE VentaID = @VentaID;
+
+    IF @NuevaCantidad > @CantidadOriginal
+    BEGIN
+
+        UPDATE Producto
+        SET CantidadStock = CantidadStock - (@NuevaCantidad - @CantidadOriginal)
+        WHERE ProductoID = @ProductoID;
+    END
+    ELSE IF @NuevaCantidad < @CantidadOriginal
+    BEGIN
+        UPDATE Producto
+        SET CantidadStock = CantidadStock + (@CantidadOriginal - @NuevaCantidad)
+        WHERE ProductoID = @ProductoID;
+    END
+
+    PRINT 'Venta actualizada exitosamente.';
+END;
+GO
+
+--Ejemplo de modificación de venta
+EXEC ActualizarVenta
+    @VentaID = 1,
+    @NuevaCantidad = 5;
+
+
+
+--Eliminar venta
+
+--EN ESTE CASO ESTOY ASUMIENDO QUE SE ELIMINA EL REGISTRO, SOLO DENTRO DE LA BD
+
+CREATE PROCEDURE EliminarVenta
+	@VentaID INT
+AS
+BEGIN
+	--Comprobaciones con if
+	IF NOT EXISTS (SELECT 1 FROM Venta WHERE VentaID = @VentaID)
+	BEGIN
+		PRINT'La venta a eliminar no existe.';
+		RETURN;
+	END
+
+	DELETE FROM Venta
+	WHERE VentaID = @VentaID;
+
+	PRINT 'Registro de venta eliminado exitisamente';
+END;
+GO
+
+--Ejemplo de eliminación de venta
+EXEC EliminarVenta
+    @VentaID = 1;
+
+
+--TABLA CLIENTE
+
+--Ingresar nuevo cliente
+
+CREATE PROCEDURE RegistrarCliente
+    @Nombre NVARCHAR(100),
+    @Direccion NVARCHAR(200),
+    @Contacto NVARCHAR(100)
+AS
+BEGIN
+    --comprobaciones con if
+    IF EXISTS (SELECT 1 FROM Cliente WHERE Nombre = @Nombre OR Contacto = @Contacto)
+    BEGIN
+        PRINT 'El cliente con este nombre o contacto ya existe.';
+        RETURN;
+    END
+
+   
+    INSERT INTO Cliente (Nombre, Direccion, Contacto)
+    VALUES (@Nombre, @Direccion, @Contacto);
+
+    PRINT 'Cliente registrado correctamente.';
+END;
+GO
+
+
+--Ejemplo de registro de cliente
+EXEC RegistrarCliente
+	@Nombre = 'Camila Rojas'
+	@Direccion = 'Calle Cedral, Ciudad Quesada'
+	@Contacto = '777-9696'
+
+
+--Modificar información de cliente
+
+CREATE PROCEDURE ActualizarCliente
+    @ClienteID INT,
+    @Nombre NVARCHAR(100),
+    @Direccion NVARCHAR(200),
+    @Contacto NVARCHAR(100)
+AS
+BEGIN
+    
+    IF NOT EXISTS (SELECT 1 FROM Cliente WHERE ClienteID = @ClienteID)
+    BEGIN
+        PRINT 'El cliente no existe en el sistema.';
+        RETURN;
+    END
+
+    
+    UPDATE Cliente
+    SET Nombre = @Nombre, Direccion = @Direccion, Contacto = @Contacto
+    WHERE ClienteID = @ClienteID;
+
+    PRINT 'Cliente actualizado exitosamente.';
+END;
+GO
+
+--Ejemplo de modificaión de datos
+
+EXEC ActualizarCliente 
+    @ClienteID = 1,
+    @Nombre = 'Juan Pérez Gómez',
+    @Direccion = 'Calle Nueva 456, Ciudad ABC',
+    @Contacto = '555-5678';
+
+--Eliminar cliente
+CREATE PROCEDURE EliminarCliente
+    @ClienteID INT
+AS
+BEGIN
+    
+    IF NOT EXISTS (SELECT 1 FROM Cliente WHERE ClienteID = @ClienteID)
+    BEGIN
+        PRINT 'El cliente no existe en el sistema.';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Venta WHERE ClienteID = @ClienteID)
+    BEGIN
+        PRINT 'El cliente no puede eliminarse porque tiene ventas registradas.';
+        RETURN;
+    END
+
+    DELETE FROM Cliente WHERE ClienteID = @ClienteID;
+
+    PRINT 'Cliente eliminado exitosamente.';
+END;
+GO
+
+--Ejemplo de eliminar cliente
+EXEC EliminarCliente 
+    @ClienteID = 5;
+
+
+
+--INFORMES
+
+--Inventario que muestre stock de cada producto
+
+SELECT 
+    p.ProductoID,
+    p.Nombre AS Producto,
+    p.CategoriaID,
+    c.Nombre AS Categoria,
+    ISNULL(SUM(v.Cantidad), 0) AS VentasRealizadas, 
+    p.CantidadStock - ISNULL(SUM(v.Cantidad), 0) AS StockActual
+FROM 
+    Producto p
+LEFT JOIN 
+    Venta v ON p.ProductoID = v.ProductoID
+LEFT JOIN 
+    Categoria c ON p.CategoriaID = c.CategoriaID
+GROUP BY 
+    p.ProductoID, p.Nombre, p.CategoriaID, c.Nombre, p.CantidadStock
+ORDER BY 
+    p.Nombre;
+
+--Ventas detalladas en un periodo especifico
+
+SELECT 
+    p.ProductoID,
+    p.Nombre AS Producto,
+    p.CategoriaID,
+    c.Nombre AS Categoria,
+    ISNULL(SUM(v.Cantidad), 0) AS VentasRealizadas, 
+    p.CantidadStock - ISNULL(SUM(v.Cantidad), 0) AS StockActual
+FROM 
+    Producto p
+LEFT JOIN 
+    Venta v ON p.ProductoID = v.ProductoID
+LEFT JOIN 
+    Categoria c ON p.CategoriaID = c.CategoriaID
+WHERE 
+    v.FechaVenta BETWEEN '2024-01-01' AND '2024-12-31'
+GROUP BY 
+    p.ProductoID, p.Nombre, p.CategoriaID, c.Nombre, p.CantidadStock
+ORDER BY 
+    p.Nombre;
+
+ --Compras detallas
+
+SELECT 
+    p.ProductoID,
+    p.Nombre AS Producto,
+    p.CategoriaID,
+    c.Nombre AS Categoria,
+    ISNULL(SUM(cp.Cantidad * cp.CostoCompra), 0) AS TotalCompra,
+    ISNULL(SUM(cp.Cantidad), 0) AS ComprasRealizadas, 
+    p.CantidadStock + ISNULL(SUM(cp.Cantidad), 0) AS StockActual
+FROM 
+    Producto p
+LEFT JOIN 
+    Compra cp ON p.ProductoID = cp.ProductoID
+LEFT JOIN 
+    Categoria c ON p.CategoriaID = c.CategoriaID
+WHERE
+    cp.FechaCompra BETWEEN '2024-01-01' AND '2024-12-31'
+GROUP BY 
+    p.ProductoID, p.Nombre, p.CategoriaID, c.Nombre, p.CantidadStock
+ORDER BY 
+    p.Nombre;
+
+
+
+
+--FUNCIONES ESCALARES
+
+--Valor total del inventario actual (La suma de todos los precios de todos los productos en stock, no de un producto individual)
+
+CREATE FUNCTION ValorStockActual()
+RETURNS INT
+AS
+BEGIN
+	DECLARE @TotalInventario INT;
+
+	--El precio por la cantidad de producto disponible
+	SELECT @TotalInventario = SUM(Precio * CantidadStock)
+	FROM Producto;
+
+	RETURN @TotalInventario;
+END;
+
+--Resultado
+SELECT dbo.ValorStockActual();
+
+
+
+--Número total de productos vendidos en un periodo
+
+CREATE FUNCTION TotalProductosVendidosFecha()
+RETURNS INT
+AS
+BEGIN
+    DECLARE @TotalVendidos INT;
+
+    SELECT @TotalVendidos = SUM(Cantidad)
+    FROM Venta
+    WHERE FechaVenta BETWEEN '2024-01-01' AND '2024-11-30';
+
+    RETURN @TotalVendidos;
+END;
+
+--Resultado
+
+SELECT dbo.TotalProductosVendidosFecha();
+
+
+--FUNCIÓN DE TABLA
+
+CREATE FUNCTION ProductosBajoStock()
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT ProductoID, Nombre, CantidadStock
+    FROM Producto
+    WHERE CantidadStock < 10
+);
+
+--Resultado 
+SELECT * FROM dbo.ProductosBajoStock();
+
+--VISTAS
+
+--Categoría y stock
+
+CREATE VIEW CategoriaStock AS
+SELECT 
+    p.ProductoID,
+    p.Nombre AS Producto,
+    c.Nombre AS Categoria,
+    p.CantidadStock AS StockActual
+FROM 
+    Producto p
+LEFT JOIN 
+    Categoria c ON p.CategoriaID = c.CategoriaID;
+
+--Resultado
+SELECT * FROM CategoriaStock;
+
+--Ventas, cliente y fecha
+
+CREATE VIEW VentaClienteFecha AS
+SELECT 
+    v.VentaID,
+    v.FechaVenta,
+    c.Nombre AS Cliente,
+    p.Nombre AS Producto,
+    v.Cantidad AS CantidadVendida
+FROM 
+    Venta v
+LEFT JOIN 
+    Cliente c ON v.ClienteID = c.ClienteID
+LEFT JOIN 
+    Producto p ON v.ProductoID = p.ProductoID;
+
+--Resultado
+SELECT * FROM VentaClienteFecha;
+
+--Compras, proveedor y fecha
+
+CREATE VIEW CompraProveedorFecha AS
+SELECT 
+    co.CompraID,
+    co.FechaCompra,
+    pr.Nombre AS Proveedor,
+    p.Nombre AS Producto,
+    co.Cantidad AS CantidadComprada
+FROM 
+    Compra co
+LEFT JOIN 
+    Proveedor pr ON co.ProveedorID = pr.ProveedorID
+LEFT JOIN 
+    Producto p ON co.ProductoID = p.ProductoID;
+
+SELECT * FROM CompraProveedorFecha;
+
+
+
+--TRIGGER (Intento)
+
+--Actualizar Stock de producto luego de venta
+
+CREATE TRIGGER ActualizarStockVenta
+ON Venta
+AFTER INSERT
+AS
+BEGIN
+
+    UPDATE Producto
+    SET CantidadStock = CantidadStock - v.Cantidad
+    FROM Producto p
+    INNER JOIN inserted v ON p.ProductoID = v.ProductoID;
+END;
+
+--Resultado
+INSERT INTO Venta (ProductoID, Cantidad, FechaVenta) VALUES (1, 5, GETDATE());
+
+--Actualizar Stock de producto luego de compra
+
+CREATE TRIGGER ActualizarStockCompra
+ON Compra
+AFTER INSERT
+AS
+BEGIN
+    
+    UPDATE Producto
+    SET CantidadStock = CantidadStock + i.Cantidad
+    FROM Producto p
+    INNER JOIN inserted i ON p.ProductoID = i.ProductoID;
+END;
+
+--Resultado 
+INSERT INTO Compra (ProductoID, Cantidad, FechaCompra) VALUES (1, 10, GETDATE());
+
+
+--BACKUP
+BACKUP DATABASE EmpresaBD TO DISK = 'C:\Backup\EmpresaBD.bak'
